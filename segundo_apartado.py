@@ -1,8 +1,7 @@
 import streamlit as st
 import numpy as np
-import matplotlib.pyplot as plt # Importamos Matplotlib
  
-# --- CSS PERSONALIZADO (Mantenemos los estilos) ---
+# --- CSS PERSONALIZADO (Para simular una calculadora y cambiar fuente) ---
 st.markdown("""
 <style>
 /* 1. Cambiar la fuente principal de la app */
@@ -43,11 +42,12 @@ st.title("🧮 Calculadora Estadística Avanzada")
 tab1, tab2, tab3 = st.tabs(["Ingreso de Datos", "Análisis Estadístico", "Acerca de"])
  
 # ---
-# PESTAÑA 1: INGRESO DE DATOS
+# PESTAÑA 1: INGRESO DE DATOS (Con estilo de calculadora)
 # ---
 with tab1:
     st.header("🔢 Carga de Datos")
  
+    # Usamos un contenedor de Streamlit para aplicar el CSS de "calculator-box"
     st.markdown('<div class="calculator-box">', unsafe_allow_html=True)
     
     st.subheader("Ingreso de la Muestra")
@@ -59,12 +59,14 @@ with tab1:
         placeholder="Ejemplo: 10, 20, 15, 30, 25"
     )
  
+    # Usamos st.columns para centrar o dar espacio al botón
     col_btn, col_spacer = st.columns([1, 4])
     
     with col_btn:
         if st.button("📊 Analizar Datos"):
             try:
-                data = [float(x.strip()) for x in data_input.split(",") if x.strip()]
+                # Convertir texto a lista numérica
+                data = [float(x.strip()) for x in data_input.split(",") if x.strip()] # Asegura que no falle en entradas vacías
  
                 if not data:
                     st.error("Error: La lista de datos está vacía.")
@@ -73,6 +75,8 @@ with tab1:
                 else:
                     st.success("✅ Datos cargados correctamente.")
                     st.info(f"Tamaño de la muestra: **{len(data)}** | Primeros 5 valores: {data[:5]}")
+                    
+                    # Guardamos los datos para usarlos en otras pestañas
                     st.session_state["datos"] = data
  
             except ValueError:
@@ -83,7 +87,7 @@ with tab1:
     st.markdown('</div>', unsafe_allow_html=True)
  
 # ---
-# PESTAÑA 2: ESTADÍSTICOS (Añadimos el Histograma aquí)
+# PESTAÑA 2: ESTADÍSTICOS (Con columnas para mejor visualización)
 # ---
 with tab2:
     st.header("📈 Resultados Estadísticos Clave")
@@ -91,29 +95,10 @@ with tab2:
     if "datos" in st.session_state and st.session_state["datos"]:
         data = st.session_state["datos"]
         
-        # 1. VISUALIZACIÓN: HISTOGRAMA
-        st.subheader("Distribución de Frecuencia (Histograma)")
-        
-        # Crea una figura y ejes de Matplotlib
-        fig, ax = plt.subplots()
-        
-        # Genera el histograma
-        ax.hist(data, bins='auto', color='#3498db', edgecolor='black')
-        
-        # Añade etiquetas y título
-        ax.set_title("Histograma de la Muestra")
-        ax.set_xlabel("Valores")
-        ax.set_ylabel("Frecuencia")
-        ax.grid(axis='y', alpha=0.5)
-        
-        # Muestra la figura en Streamlit
-        st.pyplot(fig)
-        
-        st.divider()
-
-        # 2. TABLA DE MÉTRICAS (Métricas ya existentes)
+        # Usar contenedores y columnas para una mejor presentación
         st.subheader("Medidas de Tendencia Central y Dispersión")
         
+        # Calcular estadísticos
         media = np.mean(data)
         mediana = np.median(data)
         desviacion = np.std(data, ddof=1)
@@ -131,21 +116,26 @@ with tab2:
             
         st.divider()
         
-        # Fila 2: Dispersión y Posición
-        st.subheader("Medidas de Variabilidad y Posición")
-        col_d1, col_d2, col_d3 = st.columns(3)
+        # Fila 2: Dispersión
+        st.subheader("Medidas de Variabilidad")
+        col_d1, col_d2 = st.columns(2)
         with col_d1:
             st.metric("Desviación Estándar (Muestral)", f"{desviacion:.4f}")
         with col_d2:
-            st.metric("Mínimo", f"{minimo:.4f}")
-        with col_d3:
-            st.metric("Máximo", f"{maximo:.4f}")
-        
-        # Podríamos añadir una expansión para la Varianza y Rango
-        with st.expander("Otras Métricas"):
-            st.write(f"**Varianza (Muestral):** {varianza:.4f}")
-            st.write(f"**Rango:** {rango:.4f}")
+            st.metric("Varianza (Muestral)", f"{varianza:.4f}")
 
+        st.divider()
+
+        # Fila 3: Posición
+        st.subheader("Medidas de Posición")
+        col_p1, col_p2, col_p3 = st.columns(3)
+        with col_p1:
+            st.metric("Mínimo", f"{minimo:.4f}")
+        with col_p2:
+            st.metric("Máximo", f"{maximo:.4f}")
+        with col_p3:
+            st.metric("Rango", f"{rango:.4f}")
+ 
     else:
         st.warning("⚠️ Primero ingresa y carga los datos en la pestaña **'Ingreso de Datos'** para ver los resultados.")
  
@@ -161,10 +151,10 @@ with tab3:
  
     st.subheader("Funcionalidades Clave")
     st.markdown("""
-    * **Visualización:** Generación de un **Histograma** para ver la distribución.
     * **Entrada Flexible:** Acepta datos numéricos separados por comas.
-    * **Medidas Centrales:** Cálculo de Media y Mediana.
-    * **Medidas de Dispersión:** Cálculo de Desviación Estándar y Varianza.
-    * **Medidas de Posición:** Muestra el Mínimo, Máximo y el Rango.
+    * **Medidas Centrales:** Cálculo de **Media** y **Mediana**.
+    * **Medidas de Dispersión:** Cálculo de **Desviación Estándar** y **Varianza** (ambas muestrales, usando `ddof=1`).
+    * **Medidas de Posición:** Muestra el **Mínimo**, **Máximo** y el **Rango**.
+    * **Diseño Intuitivo:** Usa pestañas y contenedores para una mejor experiencia de usuario (UX).
     """)
  

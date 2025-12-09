@@ -74,7 +74,8 @@ with tab1:
                     
                 else:
                     st.success("✅ Datos cargados correctamente.")
-                    st.info(f"Tamaño de la muestra: **{len(data)}** | Primeros 5 valores: {data[:5]}")
+                    st.info(f"Tamaño de la muestra: **{len(data)}**") 
+                    st.write(f"Primeros 5 valores cargados: '{data[:5]}'")
                     
                     # Guardamos los datos para usarlos en otras pestañas
                     st.session_state["datos"] = data
